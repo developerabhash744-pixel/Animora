@@ -1,0 +1,6 @@
+{
+  "appId": "com.animora.app",
+  "appName": "Animora",
+  "webDir": "www",
+  "bundledWebRuntime": false
+}

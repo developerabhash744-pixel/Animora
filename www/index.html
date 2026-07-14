@@ -1,0 +1,778 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Animora - Web 3D Workspace (Blender Replica)</title>
+  <!-- Google Fonts: Inter -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <!-- Lucide Icons -->
+  <script src="https://unpkg.com/lucide@latest"></script>
+  <!-- CSS Stylesheet -->
+  <link rel="stylesheet" href="style.css">
+  <!-- Three.js Import Map -->
+  <script type="importmap">
+    {
+      "imports": {
+        "three": "https://unpkg.com/three@0.150.0/build/three.module.js",
+        "three/addons/": "https://unpkg.com/three@0.150.0/examples/jsm/"
+      }
+    }
+  </script>
+</head>
+<body class="blender-theme">
+  
+  <!-- SPLASH SCREEN OVERLAY -->
+  <div class="splash-overlay" id="splash-screen">
+    <div class="splash-box">
+      <!-- Splash Graphic/Banner -->
+      <div class="splash-banner">
+        <div class="splash-banner-glow"></div>
+        <div class="splash-banner-content">
+          <svg class="splash-logo" viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg">
+            <defs>
+              <linearGradient id="splashLogoGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+                <stop offset="0%" stop-color="#ff7f27" />
+                <stop offset="100%" stop-color="#ff5500" />
+              </linearGradient>
+            </defs>
+            <circle cx="50" cy="50" r="42" fill="none" stroke="url(#splashLogoGrad)" stroke-width="8" />
+            <path d="M50 15 L25 70 L75 70 Z" fill="none" stroke="url(#splashLogoGrad)" stroke-width="8" stroke-linejoin="round" />
+            <circle cx="50" cy="45" r="10" fill="#ffffff" />
+          </svg>
+          <h1>Animora</h1>
+          <p>Version 5.1.0 Alpha | Web 3D Workspace</p>
+        </div>
+      </div>
+      <!-- Splash Interactive Region -->
+      <div class="splash-body">
+        <div class="splash-col">
+          <h3>New File</h3>
+          <ul class="splash-list">
+            <li><a href="#" class="splash-btn-new" data-template="general"><i data-lucide="layout"></i> General</a></li>
+            <li><a href="#" class="splash-btn-new" data-template="sculpting"><i data-lucide="brush"></i> Sculpting</a></li>
+            <li><a href="#" class="splash-btn-new" data-template="animation"><i data-lucide="film"></i> 2D Animation</a></li>
+            <li><a href="#" class="splash-btn-new" data-template="vfx"><i data-lucide="wand-2"></i> VFX / Nodes</a></li>
+          </ul>
+        </div>
+        <div class="splash-col border-left">
+          <h3>Recent Files</h3>
+          <ul class="splash-list recent-list" id="splash-recent-list">
+            <li><a href="#"><i data-lucide="file-text"></i> character_rig.blend</a></li>
+            <li><a href="#"><i data-lucide="file-text"></i> lowpoly_city.blend</a></li>
+            <li><a href="#"><i data-lucide="file-text"></i> fluid_simulation.blend</a></li>
+          </ul>
+          <div class="splash-open-box">
+            <a href="#" id="splash-open-btn"><i data-lucide="folder-open"></i> Open...</a>
+          </div>
+        </div>
+        <div class="splash-col border-left">
+          <h3>Getting Started</h3>
+          <ul class="splash-list links-list">
+            <li><a href="#" id="splash-manual-btn"><i data-lucide="book-open"></i> Official Manual</a></li>
+            <li><a href="#" id="splash-website-btn"><i data-lucide="globe"></i> animora.org</a></li>
+            <li><a href="#" id="splash-credits-btn"><i data-lucide="users"></i> Credits / Release Notes</a></li>
+          </ul>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- PIE MENU OVERLAY (Z KEY SHADING DIALOG) -->
+  <div class="pie-menu-overlay hidden" id="pie-menu">
+    <div class="pie-ring">
+      <div class="pie-center">
+        <span>Shading</span>
+      </div>
+      <button class="pie-slice pos-top" data-shade="render">
+        <i data-lucide="sun"></i>
+        <span>Rendered</span>
+      </button>
+      <button class="pie-slice pos-right" data-shade="material">
+        <i data-lucide="palette"></i>
+        <span>Material Preview</span>
+      </button>
+      <button class="pie-slice pos-bottom" data-shade="wire">
+        <i data-lucide="codepen"></i>
+        <span>Wireframe</span>
+      </button>
+      <button class="pie-slice pos-left" data-shade="solid">
+        <i data-lucide="box"></i>
+        <span>Solid</span>
+      </button>
+    </div>
+  </div>
+
+  <!-- MAIN APP CONTAINER -->
+  <div class="app-container">
+    
+    <!-- TOPBAR -->
+    <header class="app-header">
+      <div class="header-left">
+        <!-- Blender Logo Menu (Animora Logo) -->
+        <div class="blender-menu-container">
+          <button class="blender-menu-btn" id="blender-logo-menu">
+            <svg class="animora-logo" viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg">
+              <circle cx="50" cy="50" r="42" fill="none" stroke="#f26522" stroke-width="10" />
+              <path d="M50 15 L25 70 L75 70 Z" fill="none" stroke="#f26522" stroke-width="10" stroke-linejoin="round" />
+              <circle cx="50" cy="45" r="10" fill="#ffffff" />
+            </svg>
+          </button>
+          <div class="dropdown-menu" id="blender-logo-dropdown">
+            <a href="#" id="menu-splash"><i data-lucide="info"></i> Splash Screen...</a>
+            <a href="#" id="menu-about"><i data-lucide="help-circle"></i> About Animora...</a>
+            <hr>
+            <a href="#" id="menu-sysinfo"><i data-lucide="activity"></i> System Info</a>
+          </div>
+        </div>
+
+        <!-- Menu Bar -->
+        <nav class="menu-bar">
+          <div class="menu-item">
+            <span>File</span>
+            <div class="dropdown">
+              <a href="#" id="menu-new"><i data-lucide="file-plus"></i> New File</a>
+              <a href="#" id="menu-open"><i data-lucide="folder-open"></i> Open...</a>
+              <a href="#" id="menu-save"><i data-lucide="save"></i> Save (Ctrl+S)</a>
+              <a href="#" id="menu-save-as"><i data-lucide="save-all"></i> Save As...</a>
+              <hr>
+              <a href="#" id="menu-import"><i data-lucide="download"></i> Import Mesh</a>
+              <a href="#" id="menu-export"><i data-lucide="upload"></i> Export Scene</a>
+            </div>
+          </div>
+          <div class="menu-item">
+            <span>Edit</span>
+            <div class="dropdown">
+              <a href="#" id="menu-undo"><i data-lucide="undo"></i> Undo (Ctrl+Z)</a>
+              <a href="#" id="menu-redo"><i data-lucide="redo"></i> Redo (Ctrl+Shift+Z)</a>
+              <hr>
+              <a href="#" id="menu-preferences"><i data-lucide="settings"></i> Preferences...</a>
+            </div>
+          </div>
+          <div class="menu-item">
+            <span>Render</span>
+            <div class="dropdown">
+              <a href="#" id="menu-render-image"><i data-lucide="image"></i> Render Image (F12)</a>
+              <a href="#" id="menu-render-animation"><i data-lucide="film"></i> Render Animation</a>
+            </div>
+          </div>
+          <div class="menu-item"><span>Window</span></div>
+          <div class="menu-item"><span>Help</span></div>
+        </nav>
+      </div>
+
+      <!-- Workspaces Navigation -->
+      <div class="header-center">
+        <div class="workspace-tabs">
+          <button class="tab-btn active" data-workspace="layout">Layout</button>
+          <button class="tab-btn" data-workspace="modeling">Modeling</button>
+          <button class="tab-btn" data-workspace="sculpting">Sculpting</button>
+          <button class="tab-btn" data-workspace="shading">Shading</button>
+          <button class="tab-btn" data-workspace="animation">Animation</button>
+          <button class="tab-btn" data-workspace="rendering">Rendering</button>
+        </div>
+      </div>
+
+      <!-- Scenes & ViewLayers Selection -->
+      <div class="header-right">
+        <div class="dropdown-select scene-select">
+          <i data-lucide="globe"></i>
+          <select id="active-scene">
+            <option value="scene">Scene</option>
+          </select>
+          <button class="add-scene-btn" title="Add Scene"><i data-lucide="plus"></i></button>
+        </div>
+        <div class="dropdown-select layer-select">
+          <i data-lucide="layers"></i>
+          <select id="active-layer">
+            <option value="viewlayer">ViewLayer</option>
+          </select>
+        </div>
+      </div>
+    </header>
+
+    <!-- MAIN AREA (Split layout) -->
+    <main class="workspace-body">
+      
+      <!-- LEFT TOOLBAR (Tool Shelf Region) -->
+      <aside class="left-toolbar" id="left-toolbar">
+        <div class="tool-group">
+          <button class="tool-btn active" id="tool-select" title="Select Box (W)">
+            <i data-lucide="mouse-pointer-square-dashed"></i>
+          </button>
+          <button class="tool-btn" id="tool-cursor" title="3D Cursor">
+            <i data-lucide="target"></i>
+          </button>
+        </div>
+        <div class="divider"></div>
+        <div class="tool-group">
+          <button class="tool-btn" id="tool-move" title="Move (G)">
+            <i data-lucide="move"></i>
+          </button>
+          <button class="tool-btn" id="tool-rotate" title="Rotate (R)">
+            <i data-lucide="rotate-cw"></i>
+          </button>
+          <button class="tool-btn" id="tool-scale" title="Scale (S)">
+            <i data-lucide="maximize"></i>
+          </button>
+          <button class="tool-btn" id="tool-transform" title="Transform">
+            <i data-lucide="combine"></i>
+          </button>
+        </div>
+        <div class="divider"></div>
+        <div class="tool-group">
+          <button class="tool-btn" id="tool-measure" title="Measure">
+            <i data-lucide="ruler"></i>
+          </button>
+          <button class="tool-btn" id="tool-add-mesh" title="Add Object (Shift+A)">
+            <i data-lucide="plus-circle"></i>
+            <div class="tool-submenu">
+              <div class="submenu-item" data-add="cube"><i data-lucide="box"></i> Cube</div>
+              <div class="submenu-item" data-add="sphere"><i data-lucide="circle"></i> UV Sphere</div>
+              <div class="submenu-item" data-add="cylinder"><i data-lucide="cylinder"></i> Cylinder</div>
+              <div class="submenu-item" data-add="cone"><i data-lucide="cone"></i> Cone</div>
+              <div class="submenu-item" data-add="torus"><i data-lucide="donut"></i> Torus</div>
+            </div>
+          </button>
+        </div>
+      </aside>
+
+      <!-- CENTER VIEWPORT (3D Viewport Editor) -->
+      <section class="viewport-container" id="viewport-container">
+        
+        <!-- Viewport Editor Header (Region Header) -->
+        <div class="viewport-header">
+          <div class="viewport-menu">
+            <span class="active-mode">Object Mode</span>
+            <button class="mode-dropdown-btn" id="mode-dropdown-btn"><i data-lucide="chevron-down"></i></button>
+            <div class="mode-menu" id="mode-menu-list">
+              <div class="mode-item active" data-mode="object">Object Mode</div>
+              <div class="mode-item" data-mode="edit">Edit Mode</div>
+              <div class="mode-item" data-mode="sculpt">Sculpt Mode</div>
+              <div class="mode-item" data-mode="paint">Texture Paint</div>
+            </div>
+            
+            <nav class="vp-navbar">
+              <div class="vp-nav-item">View</div>
+              <div class="vp-nav-item">Select</div>
+              <div class="vp-nav-item" id="nav-add-btn">Add</div>
+              <div class="vp-nav-item">Object</div>
+            </nav>
+          </div>
+          
+          <div class="viewport-options">
+            <button class="vp-opt-btn" id="toggle-grid" title="Toggle Grid"><i data-lucide="grid"></i></button>
+            <button class="vp-opt-btn" id="toggle-xray" title="Toggle X-Ray"><i data-lucide="layers"></i></button>
+            <div class="shading-modes">
+              <button class="shading-btn" id="shade-wire" title="Wireframe Shading"><i data-lucide="codepen"></i></button>
+              <button class="shading-btn active" id="shade-solid" title="Solid Shading"><i data-lucide="box"></i></button>
+              <button class="shading-btn" id="shade-material" title="Material Preview"><i data-lucide="palette"></i></button>
+              <button class="shading-btn" id="shade-render" title="Rendered Shading"><i data-lucide="sun"></i></button>
+            </div>
+          </div>
+        </div>
+
+        <!-- Tool Settings Bar (Blender Horizontal Tool Settings) -->
+        <div class="tool-settings-bar" id="tool-settings-bar">
+          <span class="tool-settings-title">Tool: <span id="tool-settings-name">Select Box</span></span>
+          <div class="tool-settings-options">
+            <span class="opt-label">Mode:</span>
+            <select class="tool-select-mode">
+              <option>Set New Selection</option>
+              <option>Extend Selection</option>
+              <option>Subtract Selection</option>
+            </select>
+          </div>
+        </div>
+
+        <!-- 3D Canvas Area (Main Region) -->
+        <div class="canvas-wrapper">
+          <canvas id="three-canvas"></canvas>
+
+          <!-- Floating Viewport Navigation Widgets -->
+          <div class="viewport-widgets">
+            <div class="navigation-gizmo" id="nav-gizmo">
+              <div class="axis-sphere">
+                <div class="axis-node pos-x">X</div>
+                <div class="axis-node neg-x"></div>
+                <div class="axis-node pos-y">Y</div>
+                <div class="axis-node neg-y"></div>
+                <div class="axis-node pos-z">Z</div>
+                <div class="axis-node neg-z"></div>
+              </div>
+            </div>
+
+            <div class="viewport-controls">
+              <button class="control-btn" id="btn-zoom-in" title="Zoom In"><i data-lucide="zoom-in"></i></button>
+              <button class="control-btn" id="btn-zoom-out" title="Zoom Out"><i data-lucide="zoom-out"></i></button>
+              <button class="control-btn" id="btn-camera" title="Toggle Camera View"><i data-lucide="video"></i></button>
+              <button class="control-btn" id="btn-ortho" title="Perspective/Orthographic"><i data-lucide="grid-3x3"></i></button>
+            </div>
+
+            <!-- Active Operator Overlay (Displays transforms when manipulating) -->
+            <div class="transform-overlay hidden" id="transform-overlay">
+              <span class="label" id="transform-label">Translate:</span>
+              <span class="value" id="transform-value">X: 0.00, Y: 0.00, Z: 0.00</span>
+              <span class="tip">(Press X/Y/Z to lock axis, Esc to cancel)</span>
+            </div>
+          </div>
+
+          <!-- SIDEBAR REGION (Blender N-Panel Sidebar, toggles with N) -->
+          <aside class="n-sidebar hidden" id="n-sidebar">
+            <div class="n-sidebar-tabs">
+              <button class="n-tab-btn active" data-n-tab="item">Item</button>
+              <button class="n-tab-btn" data-n-tab="tool">Tool</button>
+              <button class="n-tab-btn" data-n-tab="view">View</button>
+            </div>
+            <div class="n-sidebar-content">
+              <!-- Tab: Item (Transform) -->
+              <div class="n-tab-panel" id="n-panel-item">
+                <h3>Transform</h3>
+                <div class="n-group">
+                  <span class="n-group-title">Location</span>
+                  <div class="n-row"><label>X</label><input type="number" step="0.1" id="n-loc-x" class="n-sync"></div>
+                  <div class="n-row"><label>Y</label><input type="number" step="0.1" id="n-loc-y" class="n-sync"></div>
+                  <div class="n-row"><label>Z</label><input type="number" step="0.1" id="n-loc-z" class="n-sync"></div>
+                </div>
+                <div class="n-group">
+                  <span class="n-group-title">Rotation</span>
+                  <div class="n-row"><label>X</label><input type="number" step="1" id="n-rot-x" class="n-sync"></div>
+                  <div class="n-row"><label>Y</label><input type="number" step="1" id="n-rot-y" class="n-sync"></div>
+                  <div class="n-row"><label>Z</label><input type="number" step="1" id="n-rot-z" class="n-sync"></div>
+                </div>
+                <div class="n-group">
+                  <span class="n-group-title">Scale</span>
+                  <div class="n-row"><label>X</label><input type="number" step="0.1" id="n-scale-x" class="n-sync"></div>
+                  <div class="n-row"><label>Y</label><input type="number" step="0.1" id="n-scale-y" class="n-sync"></div>
+                  <div class="n-row"><label>Z</label><input type="number" step="0.1" id="n-scale-z" class="n-sync"></div>
+                </div>
+              </div>
+              
+              <!-- Tab: Tool -->
+              <div class="n-tab-panel hidden" id="n-panel-tool">
+                <h3>Active Tool</h3>
+                <div class="n-group">
+                  <p id="n-tool-desc">Select Box: Click and drag to select items inside a rectangular area.</p>
+                </div>
+              </div>
+
+              <!-- Tab: View -->
+              <div class="n-tab-panel hidden" id="n-panel-view">
+                <h3>Viewport Settings</h3>
+                <div class="n-group">
+                  <span class="n-group-title">Camera Clip</span>
+                  <div class="n-row"><label>Start</label><input type="number" value="0.1" step="0.05" id="n-clip-start"></div>
+                  <div class="n-row"><label>End</label><input type="number" value="1000" step="10" id="n-clip-end"></div>
+                </div>
+                <div class="n-group">
+                  <span class="n-group-title">Grid Settings</span>
+                  <div class="n-row"><label>Scale</label><input type="number" value="1.0" step="0.1" id="n-grid-scale"></div>
+                  <div class="n-row"><label>Subdivisions</label><input type="number" value="10" id="n-grid-sub"></div>
+                </div>
+              </div>
+            </div>
+          </aside>
+
+          <!-- ADJUST LAST OPERATION PANEL (Blender F9 panel, bottom-left) -->
+          <div class="f9-panel hidden" id="f9-panel">
+            <div class="f9-header">
+              <span id="f9-title">Add Cube</span>
+              <button class="f9-minimize-btn" id="f9-toggle-btn"><i data-lucide="chevron-down"></i></button>
+            </div>
+            <div class="f9-content" id="f9-content-fields">
+              <!-- Dynamically populated fields on object add -->
+            </div>
+          </div>
+
+          <!-- Floating Mobile Shortcuts Bar (Emulates Keyboard Keys on Touch Screens) -->
+          <div class="mobile-shortcuts-bar" id="mobile-shortcuts">
+            <button class="shortcut-btn" id="m-btn-add" title="Add Object (Shift+A)"><i data-lucide="plus-circle"></i> <span>Add</span></button>
+            <div class="divider-y"></div>
+            <button class="shortcut-btn" id="m-btn-grab" title="Grab (G)"><i data-lucide="move"></i> <span>Move</span></button>
+            <button class="shortcut-btn" id="m-btn-rotate" title="Rotate (R)"><i data-lucide="rotate-cw"></i> <span>Rotate</span></button>
+            <button class="shortcut-btn" id="m-btn-scale" title="Scale (S)"><i data-lucide="maximize"></i> <span>Scale</span></button>
+            <div class="divider-y"></div>
+            <button class="shortcut-btn axis-btn" id="m-btn-axis-x" title="Lock X-Axis">X</button>
+            <button class="shortcut-btn axis-btn" id="m-btn-axis-y" title="Lock Y-Axis">Y</button>
+            <button class="shortcut-btn axis-btn" id="m-btn-axis-z" title="Lock Z-Axis">Z</button>
+            <div class="divider-y"></div>
+            <button class="shortcut-btn" id="m-btn-pie" title="Shading Pie Menu (Z)"><i data-lucide="box"></i> <span>Shading</span></button>
+            <button class="shortcut-btn" id="m-btn-sidebar" title="N-Panel (N)"><i data-lucide="columns"></i> <span>N-Panel</span></button>
+            <div class="divider-y transform-only-divider hidden" id="m-divider-transform"></div>
+            <button class="shortcut-btn action-confirm-btn hidden" id="m-btn-confirm" title="Confirm (Enter)"><i data-lucide="check"></i> <span>Confirm</span></button>
+            <button class="shortcut-btn action-cancel-btn hidden" id="m-btn-cancel" title="Cancel (Esc)"><i data-lucide="x"></i> <span>Cancel</span></button>
+          </div>
+
+        </div>
+
+        <!-- Viewport Editor Footer (Region Footer) -->
+        <div class="viewport-footer">
+          <span class="selection-info" id="selection-info">Select an object to inspect</span>
+          <span class="axis-info">Grid: 1.0m (Press N for sidebar)</span>
+        </div>
+      </section>
+
+      <!-- RIGHT SIDEBAR (Outliner & Properties editors) -->
+      <aside class="right-sidebar">
+        
+        <!-- OUTLINER -->
+        <div class="panel outliner-panel">
+          <div class="panel-header">
+            <span class="panel-title"><i data-lucide="network"></i> Outliner</span>
+            <div class="panel-actions">
+              <button class="action-btn" id="add-collection-btn" title="New Collection"><i data-lucide="folder-plus"></i></button>
+            </div>
+          </div>
+          <div class="panel-content scrollable">
+            <ul class="outliner-tree">
+              <li class="tree-root">
+                <span class="tree-toggle expanded"><i data-lucide="chevron-down"></i></span>
+                <span class="tree-icon"><i data-lucide="database"></i></span>
+                <span class="tree-label">Scene Collection</span>
+                <ul class="tree-group">
+                  <li class="tree-collection">
+                    <span class="tree-toggle expanded"><i data-lucide="chevron-down"></i></span>
+                    <span class="tree-icon text-orange"><i data-lucide="folder"></i></span>
+                    <span class="tree-label">Collection</span>
+                    <ul class="tree-items" id="outliner-list">
+                      <!-- Dynamic list from main.js -->
+                    </ul>
+                  </li>
+                </ul>
+              </li>
+            </ul>
+          </div>
+        </div>
+
+        <!-- PROPERTIES EDITOR -->
+        <div class="panel properties-panel">
+          <div class="properties-container">
+            <div class="properties-tabs">
+              <button class="prop-tab-btn" data-tab="tool" title="Active Tool Settings"><i data-lucide="wrench"></i></button>
+              <button class="prop-tab-btn" data-tab="render" title="Render Settings"><i data-lucide="cpu"></i></button>
+              <button class="prop-tab-btn" data-tab="scene" title="Scene Settings"><i data-lucide="globe"></i></button>
+              <button class="prop-tab-btn active" data-tab="object" title="Object Properties"><i data-lucide="box"></i></button>
+              <button class="prop-tab-btn" data-tab="modifiers" title="Modifiers"><i data-lucide="construction"></i></button>
+              <button class="prop-tab-btn" data-tab="material" title="Material Properties"><i data-lucide="palette"></i></button>
+            </div>
+            
+            <div class="properties-content scrollable">
+              
+              <!-- Tab: Tool Settings -->
+              <div class="prop-content-tab hidden" id="tab-tool">
+                <h3>Tool Settings</h3>
+                <div class="property-group">
+                  <span class="group-title">Active Tool: <span id="active-tool-name" class="highlight">Select Box</span></span>
+                  <div class="property-row">
+                    <label>Drag Mode</label>
+                    <select>
+                      <option>Set New Selection</option>
+                      <option>Extend Selection</option>
+                      <option>Subtract Selection</option>
+                    </select>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Tab: Render Settings -->
+              <div class="prop-content-tab hidden" id="tab-render">
+                <h3>Render Settings</h3>
+                <div class="property-group">
+                  <span class="group-title">Sampling</span>
+                  <div class="property-row">
+                    <label>Render Samples</label>
+                    <input type="number" value="64" min="1" max="4096">
+                  </div>
+                  <div class="property-row">
+                    <label>Viewport Samples</label>
+                    <input type="number" value="16" min="1" max="1024">
+                  </div>
+                </div>
+                <div class="property-group">
+                  <span class="group-title">Performance</span>
+                  <div class="property-row">
+                    <label>Use GPU Compute</label>
+                    <input type="checkbox" checked>
+                  </div>
+                  <div class="property-row">
+                    <label>Denoising</label>
+                    <input type="checkbox" checked>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Tab: Scene Settings -->
+              <div class="prop-content-tab hidden" id="tab-scene">
+                <h3>Scene Properties</h3>
+                <div class="property-group">
+                  <span class="group-title">Gravity</span>
+                  <div class="property-row">
+                    <label>Use Gravity</label>
+                    <input type="checkbox" checked id="gravity-checkbox">
+                  </div>
+                  <div class="property-row">
+                    <label>Z Gravity</label>
+                    <input type="number" value="-9.81" step="0.1" id="gravity-value">
+                  </div>
+                </div>
+                <div class="property-group">
+                  <span class="group-title">World Environment</span>
+                  <div class="property-row">
+                    <label>Color</label>
+                    <input type="color" value="#050505" id="world-bg-color">
+                  </div>
+                  <div class="property-row">
+                    <label>Ambient Light</label>
+                    <input type="range" min="0" max="1" step="0.05" value="0.20" id="world-ambient-intensity">
+                  </div>
+                </div>
+              </div>
+
+              <!-- Tab: Object Properties (ACTIVE) -->
+              <div class="prop-content-tab" id="tab-object">
+                <h3 id="prop-object-title">Transform</h3>
+                
+                <div class="property-row object-rename-row">
+                  <label>Name</label>
+                  <input type="text" value="Cube" id="obj-name-input">
+                </div>
+
+                <div class="property-group">
+                  <span class="group-title"><i data-lucide="move"></i> Location</span>
+                  <div class="property-row xyz-row">
+                    <div class="xyz-input x-input">
+                      <span>X</span><input type="number" value="0.00" step="0.1" id="loc-x" class="p-sync">
+                    </div>
+                    <div class="xyz-input y-input">
+                      <span>Y</span><input type="number" value="0.00" step="0.1" id="loc-y" class="p-sync">
+                    </div>
+                    <div class="xyz-input z-input">
+                      <span>Z</span><input type="number" value="0.00" step="0.1" id="loc-z" class="p-sync">
+                    </div>
+                  </div>
+                </div>
+
+                <div class="property-group">
+                  <span class="group-title"><i data-lucide="rotate-cw"></i> Rotation</span>
+                  <div class="property-row xyz-row">
+                    <div class="xyz-input x-input">
+                      <span>X</span><input type="number" value="0.0" step="1.0" id="rot-x" class="p-sync">
+                    </div>
+                    <div class="xyz-input y-input">
+                      <span>Y</span><input type="number" value="0.0" step="1.0" id="rot-y" class="p-sync">
+                    </div>
+                    <div class="xyz-input z-input">
+                      <span>Z</span><input type="number" value="0.0" step="1.0" id="rot-z" class="p-sync">
+                    </div>
+                  </div>
+                </div>
+
+                <div class="property-group">
+                  <span class="group-title"><i data-lucide="maximize"></i> Scale</span>
+                  <div class="property-row xyz-row">
+                    <div class="xyz-input x-input">
+                      <span>X</span><input type="number" value="1.00" step="0.1" id="scale-x" class="p-sync">
+                    </div>
+                    <div class="xyz-input y-input">
+                      <span>Y</span><input type="number" value="1.00" step="0.1" id="scale-y" class="p-sync">
+                    </div>
+                    <div class="xyz-input z-input">
+                      <span>Z</span><input type="number" value="1.00" step="0.1" id="scale-z" class="p-sync">
+                    </div>
+                  </div>
+                </div>
+
+                <div class="property-group">
+                  <span class="group-title">Object Options</span>
+                  <div class="property-row">
+                    <label>Visible</label>
+                    <input type="checkbox" checked id="obj-visible" class="p-sync">
+                  </div>
+                  <div class="property-row">
+                    <button class="delete-btn" id="obj-delete"><i data-lucide="trash-2"></i> Delete Object</button>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Tab: Modifiers -->
+              <div class="prop-content-tab hidden" id="tab-modifiers">
+                <h3>Modifiers</h3>
+                <div class="modifier-selector">
+                  <select id="add-modifier-select">
+                    <option value="" disabled selected>Add Modifier...</option>
+                    <option value="subdivision">Subdivision Surface</option>
+                    <option value="wireframe">Wireframe</option>
+                    <option value="bevel">Bevel</option>
+                  </select>
+                </div>
+                <div class="modifiers-list" id="modifiers-list">
+                  <div class="no-modifiers-msg">No Modifiers active on this object</div>
+                </div>
+              </div>
+
+              <!-- Tab: Material Properties -->
+              <div class="prop-content-tab hidden" id="tab-material">
+                <h3>Material Settings</h3>
+                <div class="property-group">
+                  <span class="group-title">Surface Material</span>
+                  <div class="property-row">
+                    <label>Material Name</label>
+                    <input type="text" value="Material.001" id="mat-name-input">
+                  </div>
+                  <div class="property-row">
+                    <label>Base Color</label>
+                    <input type="color" value="#cccccc" id="mat-color-input" class="p-sync">
+                  </div>
+                </div>
+                <div class="property-group">
+                  <span class="group-title">Principled BSDF Properties</span>
+                  <div class="property-row">
+                    <label>Metallic</label>
+                    <input type="range" min="0" max="1" step="0.05" value="0.00" id="mat-metallic" class="p-sync">
+                  </div>
+                  <div class="property-row">
+                    <label>Roughness</label>
+                    <input type="range" min="0" max="1" step="0.05" value="0.50" id="mat-roughness" class="p-sync">
+                  </div>
+                  <div class="property-row">
+                    <label>Emissive</label>
+                    <input type="range" min="0" max="1" step="0.05" value="0.00" id="mat-emissive" class="p-sync">
+                  </div>
+                </div>
+              </div>
+
+            </div>
+          </div>
+        </div>
+
+      </aside>
+
+    </main>
+
+    <!-- TIMELINE EDITOR (Footer Area) -->
+    <footer class="app-footer">
+      
+      <div class="timeline-panel">
+        <!-- Playback toolbar -->
+        <div class="timeline-header">
+          <div class="timeline-menu">
+            <span class="panel-title"><i data-lucide="clock"></i> Timeline</span>
+            <button class="tl-menu-btn">Playback</button>
+            <button class="tl-menu-btn">Keying</button>
+            <button class="tl-menu-btn">View</button>
+          </div>
+          
+          <div class="playback-controls">
+            <button class="play-btn" id="play-start" title="Jump to Start"><i data-lucide="skip-back"></i></button>
+            <button class="play-btn" id="play-prev" title="Previous Frame"><i data-lucide="chevron-left"></i></button>
+            <button class="play-btn" id="play-reverse" title="Play Reverse"><i data-lucide="play" class="rotate-180"></i></button>
+            <button class="play-btn" id="play-toggle" title="Play Animation (Spacebar)"><i data-lucide="play" id="play-icon"></i></button>
+            <button class="play-btn" id="play-next" title="Next Frame"><i data-lucide="chevron-right"></i></button>
+            <button class="play-btn" id="play-end" title="Jump to End"><i data-lucide="skip-forward"></i></button>
+            <button class="play-btn" id="play-record" title="Auto-Keyframe"><i data-lucide="circle"></i></button>
+          </div>
+
+          <div class="frame-inputs">
+            <div class="frame-num">
+              <label>Start</label>
+              <input type="number" value="1" min="1" id="frame-start">
+            </div>
+            <div class="frame-num current-frame-input">
+              <label>Frame</label>
+              <input type="number" value="1" id="frame-current">
+            </div>
+            <div class="frame-num">
+              <label>End</label>
+              <input type="number" value="250" min="1" id="frame-end">
+            </div>
+          </div>
+        </div>
+
+        <!-- Scrubber and tick tracks -->
+        <div class="timeline-slider-container">
+          <div class="timeline-ruler" id="timeline-ruler">
+            <!-- Ticks generated from ui.js -->
+          </div>
+          <div class="timeline-scrubber" id="timeline-scrubber">
+            <div class="scrubber-head"></div>
+            <div class="scrubber-line"></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- STATUS BAR -->
+      <div class="status-bar">
+        <div class="status-left">
+          <span><i data-lucide="mouse-pointer"></i> Select (Left click)</span>
+          <span><i data-lucide="navigation"></i> Rotate View (Middle drag)</span>
+          <span><i data-lucide="move"></i> Grab/Move (G)</span>
+          <span><i data-lucide="rotate-cw"></i> Rotate (R)</span>
+          <span><i data-lucide="maximize"></i> Scale (S)</span>
+        </div>
+        <div class="status-right">
+          <span id="rendering-indicator" class="idle"><i data-lucide="activity"></i> Render Engine: Eevee</span>
+          <span>Verts: 8 | Faces: 6 | Tris: 12 | Memory: 42.4 MB</span>
+        </div>
+      </div>
+
+    </footer>
+
+  </div>
+
+  <!-- PREFERENCES SYSTEM MODAL -->
+  <div class="modal-overlay hidden" id="modal-prefs">
+    <div class="modal-box">
+      <div class="modal-header">
+        <h2>Animora Preferences</h2>
+        <button class="modal-close" id="close-prefs"><i data-lucide="x"></i></button>
+      </div>
+      <div class="modal-body">
+        <div class="prefs-sidebar">
+          <button class="pref-tab active" data-pref-tab="interface">Interface</button>
+          <button class="pref-tab" data-pref-tab="themes">Themes</button>
+          <button class="pref-tab" data-pref-tab="system">System</button>
+        </div>
+        <div class="prefs-content">
+          <div class="pref-panel" id="pref-interface">
+            <h3>Interface Settings</h3>
+            <div class="pref-row">
+              <label>UI Scale</label>
+              <input type="range" min="0.75" max="1.50" step="0.05" value="1.00" id="ui-scale-slider">
+              <span id="ui-scale-val">1.00x</span>
+            </div>
+            <div class="pref-row">
+              <label>Show Tooltips</label>
+              <input type="checkbox" checked>
+            </div>
+          </div>
+          <div class="pref-panel hidden" id="pref-themes">
+            <h3>Theme Color Presets</h3>
+            <div class="theme-presets-grid">
+              <button class="theme-preset-btn active" data-theme="blender-dark">Blender Dark (Original)</button>
+              <button class="theme-preset-btn" data-theme="animora-neon">Animora Neon (Vibrant)</button>
+              <button class="theme-preset-btn" data-theme="light-flat">Light Minimalist</button>
+            </div>
+          </div>
+          <div class="pref-panel hidden" id="pref-system">
+            <h3>System Settings</h3>
+            <div class="pref-row">
+              <label>Undo Steps</label>
+              <input type="number" value="32" min="1" max="256">
+            </div>
+            <div class="pref-row">
+              <label>Animate Interface Dialogs</label>
+              <input type="checkbox" checked id="pref-animate-ui">
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Scripts -->
+  <script type="module" src="main.js"></script>
+  <script type="module" src="ui.js"></script>
+</body>
+</html>

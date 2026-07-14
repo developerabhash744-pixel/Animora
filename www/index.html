@@ -9,15 +9,15 @@
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
   <!-- Lucide Icons -->
-  <script src="https://unpkg.com/lucide@latest"></script>
+  <script src="lucide.min.js"></script>
   <!-- CSS Stylesheet -->
   <link rel="stylesheet" href="style.css">
   <!-- Three.js Import Map -->
   <script type="importmap">
     {
       "imports": {
-        "three": "https://unpkg.com/three@0.150.0/build/three.module.js",
-        "three/addons/": "https://unpkg.com/three@0.150.0/examples/jsm/"
+        "three": "./three.module.js",
+        "three/addons/": "./"
       }
     }
   </script>
@@ -33,14 +33,18 @@
         <div class="splash-banner-content">
           <svg class="splash-logo" viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg">
             <defs>
-              <linearGradient id="splashLogoGrad" x1="0%" y1="0%" x2="100%" y2="100%">
-                <stop offset="0%" stop-color="#ff7f27" />
-                <stop offset="100%" stop-color="#ff5500" />
+              <linearGradient id="logoGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+                <stop offset="0%" stop-color="#ff6a00" />
+                <stop offset="100%" stop-color="#00f0ff" />
               </linearGradient>
             </defs>
-            <circle cx="50" cy="50" r="42" fill="none" stroke="url(#splashLogoGrad)" stroke-width="8" />
-            <path d="M50 15 L25 70 L75 70 Z" fill="none" stroke="url(#splashLogoGrad)" stroke-width="8" stroke-linejoin="round" />
-            <circle cx="50" cy="45" r="10" fill="#ffffff" />
+            <circle cx="50" cy="50" r="42" fill="none" stroke="url(#logoGrad)" stroke-width="6" />
+            <g stroke="url(#logoGrad)" stroke-width="2" fill-opacity="0.45" stroke-linejoin="round">
+              <polygon points="50,22 74,36 50,50 26,36" fill="#00f0ff" />
+              <polygon points="26,36 50,50 50,78 26,64" fill="#ff6a00" />
+              <polygon points="50,50 74,36 74,64 50,78" fill="#e60067" />
+            </g>
+            <circle cx="50" cy="50" r="5" fill="#ffffff" />
           </svg>
           <h1>Animora</h1>
           <p>Version 5.1.0 Alpha | Web 3D Workspace</p>
@@ -115,9 +119,13 @@
         <div class="blender-menu-container">
           <button class="blender-menu-btn" id="blender-logo-menu">
             <svg class="animora-logo" viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg">
-              <circle cx="50" cy="50" r="42" fill="none" stroke="#f26522" stroke-width="10" />
-              <path d="M50 15 L25 70 L75 70 Z" fill="none" stroke="#f26522" stroke-width="10" stroke-linejoin="round" />
-              <circle cx="50" cy="45" r="10" fill="#ffffff" />
+              <circle cx="50" cy="50" r="42" fill="none" stroke="url(#logoGrad)" stroke-width="8" />
+              <g stroke="url(#logoGrad)" stroke-width="3" fill-opacity="0.5" stroke-linejoin="round">
+                <polygon points="50,22 74,36 50,50 26,36" fill="#00f0ff" />
+                <polygon points="26,36 50,50 50,78 26,64" fill="#ff6a00" />
+                <polygon points="50,50 74,36 74,64 50,78" fill="#e60067" />
+              </g>
+              <circle cx="50" cy="50" r="6" fill="#ffffff" />
             </svg>
           </button>
           <div class="dropdown-menu" id="blender-logo-dropdown">
@@ -742,6 +750,7 @@
         <div class="prefs-sidebar">
           <button class="pref-tab active" data-pref-tab="interface">Interface</button>
           <button class="pref-tab" data-pref-tab="themes">Themes</button>
+          <button class="pref-tab" data-pref-tab="viewport">Viewport / Sizing</button>
           <button class="pref-tab" data-pref-tab="system">System</button>
         </div>
         <div class="prefs-content">
@@ -763,6 +772,58 @@
               <button class="theme-preset-btn active" data-theme="blender-dark">Blender Dark (Original)</button>
               <button class="theme-preset-btn" data-theme="animora-neon">Animora Neon (Vibrant)</button>
               <button class="theme-preset-btn" data-theme="light-flat">Light Minimalist</button>
+            </div>
+          </div>
+          <div class="pref-panel hidden" id="pref-viewport">
+            <div class="settings-logo-header" style="text-align: center; margin-bottom: 12px; border-bottom: 1px solid var(--border-light); padding-bottom: 8px; display: flex; flex-direction: column; align-items: center; justify-content: center;">
+              <svg class="settings-logo" viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg" style="width: 44px; height: 44px; margin-bottom: 4px;">
+                <circle cx="50" cy="50" r="42" fill="none" stroke="url(#logoGrad)" stroke-width="8" />
+                <g stroke="url(#logoGrad)" stroke-width="3" fill-opacity="0.5" stroke-linejoin="round">
+                  <polygon points="50,22 74,36 50,50 26,36" fill="#00f0ff" />
+                  <polygon points="26,36 50,50 50,78 26,64" fill="#ff6a00" />
+                  <polygon points="50,50 74,36 74,64 50,78" fill="#e60067" />
+                </g>
+                <circle cx="50" cy="50" r="6" fill="#ffffff" />
+              </svg>
+              <h3>Viewport Resolution & Sizing</h3>
+            </div>
+            
+            <div class="pref-row">
+              <label>Viewport Scaling</label>
+              <select id="setting-viewport-scale">
+                <option value="0.6">0.6x (Compact)</option>
+                <option value="0.7">0.7x</option>
+                <option value="0.8">0.8x</option>
+                <option value="0.9">0.9x</option>
+                <option value="1.0" selected>1.0x (Default)</option>
+                <option value="1.1">1.1x</option>
+                <option value="1.2">1.2x (Large)</option>
+                <option value="custom">Custom Scale...</option>
+              </select>
+            </div>
+            
+            <div class="pref-row hidden" id="setting-vp-custom-row">
+              <label>Custom Scale Ratio</label>
+              <input type="number" id="setting-vp-custom-scale" min="0.4" max="3.0" step="0.05" value="1.0" style="width: 80px; text-align: right; background-color: var(--bg-input); border: 1px solid var(--border-color); color: var(--text-main); border-radius: var(--border-radius-sm);">
+            </div>
+
+            <div class="pref-row">
+              <label>Font Size (UI)</label>
+              <select id="setting-font-size">
+                <option value="4">4px (Tiny)</option>
+                <option value="5" selected>5px (Default)</option>
+                <option value="6">6px</option>
+                <option value="8">8px</option>
+                <option value="10">10px</option>
+                <option value="12">12px</option>
+                <option value="14">14px</option>
+                <option value="16">16px</option>
+              </select>
+            </div>
+
+            <div class="pref-actions" style="display: flex; gap: 8px; margin-top: 15px;">
+              <button id="setting-apply-btn" style="flex: 1; padding: 6px; background-color: var(--accent); color: var(--text-dark); border: none; border-radius: var(--border-radius); font-weight: 600; cursor: pointer;">Apply Settings</button>
+              <button id="setting-reset-btn" style="flex: 1; padding: 6px; background-color: var(--border-light); color: var(--text-main); border: 1px solid var(--border-color); border-radius: var(--border-radius); font-weight: 600; cursor: pointer;">Reset Default</button>
             </div>
           </div>
           <div class="pref-panel hidden" id="pref-system">

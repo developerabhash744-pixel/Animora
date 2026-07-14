@@ -519,6 +519,123 @@ window.addEventListener('DOMContentLoaded', () => {
       btnToggleRight.classList.remove('active');
     });
   }
+
+  // Helper to apply font size
+  function applyFontSize(size) {
+    const fs = parseFloat(size);
+    document.documentElement.style.setProperty('--font-size-ui', `${fs}px`);
+    document.documentElement.style.setProperty('--font-size-title', `${fs + 1}px`);
+    document.documentElement.style.setProperty('--font-size-header', `${fs + 2}px`);
+  }
+
+  // Helper to apply viewport scale
+  function applyViewportScale(scale) {
+    const scaleFactor = parseFloat(scale);
+    const containerEl = document.querySelector('.app-container');
+    if (containerEl) {
+      if (scaleFactor === 1.0) {
+        containerEl.style.transform = '';
+        containerEl.style.transformOrigin = '';
+        containerEl.style.width = '';
+        containerEl.style.height = '';
+      } else {
+        containerEl.style.transform = `scale(${scaleFactor})`;
+        containerEl.style.transformOrigin = 'top left';
+        containerEl.style.width = `${100 / scaleFactor}%`;
+        containerEl.style.height = `${100 / scaleFactor}%`;
+      }
+      // Notify Three.js that the viewport canvas has resized
+      setTimeout(() => {
+        window.dispatchEvent(new Event('resize'));
+      }, 50);
+    }
+  }
+
+  // 16. Load Settings from LocalStorage on Startup
+  const savedFontSize = localStorage.getItem('animora_font_size') || '5'; // Default to 5px as requested
+  const savedVpScale = localStorage.getItem('animora_viewport_scale') || '1.0';
+  
+  applyFontSize(savedFontSize);
+  applyViewportScale(savedVpScale);
+
+  // Sync settings values back to inputs
+  const selectFontSize = document.getElementById('setting-font-size');
+  const selectVpScale = document.getElementById('setting-viewport-scale');
+  const customVpScaleRow = document.getElementById('setting-vp-custom-row');
+  const customVpScaleInput = document.getElementById('setting-vp-custom-scale');
+
+  if (selectFontSize) selectFontSize.value = savedFontSize;
+  if (selectVpScale) {
+    const standardValues = ['0.6', '0.7', '0.8', '0.9', '1.0', '1.1', '1.2'];
+    if (standardValues.includes(savedVpScale)) {
+      selectVpScale.value = savedVpScale;
+    } else {
+      selectVpScale.value = 'custom';
+      if (customVpScaleRow) customVpScaleRow.classList.remove('hidden');
+      if (customVpScaleInput) customVpScaleInput.value = savedVpScale;
+    }
+  }
+
+  // Viewport Scale dropdown change listener
+  if (selectVpScale) {
+    selectVpScale.addEventListener('change', (e) => {
+      if (e.target.value === 'custom') {
+        customVpScaleRow.classList.remove('hidden');
+      } else {
+        customVpScaleRow.classList.add('hidden');
+        customVpScaleInput.value = e.target.value;
+      }
+    });
+  }
+
+  // Apply button click
+  const btnApply = document.getElementById('setting-apply-btn');
+  if (btnApply) {
+    btnApply.addEventListener('click', () => {
+      const selectedFontSize = selectFontSize.value;
+      let selectedVpScale = selectVpScale.value;
+      if (selectedVpScale === 'custom') {
+        selectedVpScale = parseFloat(customVpScaleInput.value) || 1.0;
+      }
+
+      // Save to localStorage
+      localStorage.setItem('animora_font_size', selectedFontSize);
+      localStorage.setItem('animora_viewport_scale', selectedVpScale);
+
+      // Apply
+      applyFontSize(selectedFontSize);
+      applyViewportScale(selectedVpScale);
+
+      // Close modal
+      const modalPrefs = document.getElementById('modal-prefs');
+      if (modalPrefs) modalPrefs.classList.add('hidden');
+    });
+  }
+
+  // Reset button click
+  const btnReset = document.getElementById('setting-reset-btn');
+  if (btnReset) {
+    btnReset.addEventListener('click', () => {
+      if (selectFontSize) selectFontSize.value = '5'; // Reset default to 5px
+      if (selectVpScale) {
+        selectVpScale.value = '1.0';
+        if (customVpScaleRow) customVpScaleRow.classList.add('hidden');
+        if (customVpScaleInput) customVpScaleInput.value = '1.0';
+      }
+
+      // Save defaults
+      localStorage.setItem('animora_font_size', '5');
+      localStorage.setItem('animora_viewport_scale', '1.0');
+
+      // Apply defaults
+      applyFontSize('5');
+      applyViewportScale('1.0');
+
+      // Close modal
+      const modalPrefs = document.getElementById('modal-prefs');
+      if (modalPrefs) modalPrefs.classList.add('hidden');
+    });
+  }
 });
 
 function renderTimelineRuler() {

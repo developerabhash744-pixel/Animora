@@ -482,6 +482,43 @@ window.addEventListener('DOMContentLoaded', () => {
       document.getElementById('m-btn-cancel').classList.add('hidden');
     }
   };
+
+  // 15. Mobile Overlay Drawer Toggles
+  const leftShelf = document.getElementById('left-toolbar');
+  const rightSidebar = document.querySelector('.right-sidebar');
+  const btnToggleLeft = document.getElementById('btn-toggle-left-shelf');
+  const btnToggleRight = document.getElementById('btn-toggle-right-shelf');
+
+  btnToggleLeft.addEventListener('click', (e) => {
+    e.stopPropagation();
+    leftShelf.classList.toggle('mobile-open');
+    btnToggleLeft.classList.toggle('active');
+    
+    // Close other drawer
+    rightSidebar.classList.remove('mobile-open');
+    btnToggleRight.classList.remove('active');
+  });
+
+  btnToggleRight.addEventListener('click', (e) => {
+    e.stopPropagation();
+    rightSidebar.classList.toggle('mobile-open');
+    btnToggleRight.classList.toggle('active');
+    
+    // Close other drawer
+    leftShelf.classList.remove('mobile-open');
+    btnToggleLeft.classList.remove('active');
+  });
+
+  // Tap viewport canvas to close open overlay drawers on mobile
+  const viewCanvas = document.getElementById('three-canvas');
+  if (viewCanvas) {
+    viewCanvas.addEventListener('click', () => {
+      leftShelf.classList.remove('mobile-open');
+      rightSidebar.classList.remove('mobile-open');
+      btnToggleLeft.classList.remove('active');
+      btnToggleRight.classList.remove('active');
+    });
+  }
 });
 
 function renderTimelineRuler() {

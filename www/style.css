@@ -2123,3 +2123,175 @@ body.blender-theme {
   color: #ffffff !important;
 }
 
+/* ==========================================================================
+   RESPONSIVE DESIGN (MOBILE OVERLAY STYLE DRAWERS)
+   ========================================================================== */
+.header-toggle-btn {
+  display: none;
+  background: none;
+  border: none;
+  color: var(--text-muted);
+  cursor: pointer;
+  padding: 4px;
+  border-radius: var(--border-radius-sm);
+  align-items: center;
+  justify-content: center;
+  transition: all var(--transition-speed);
+}
+
+.header-toggle-btn:hover, .header-toggle-btn.active {
+  background-color: var(--border-light);
+  color: var(--text-main);
+}
+
+.header-toggle-btn i {
+  width: 16px;
+  height: 16px;
+}
+
+@media (max-width: 768px) {
+  /* Layout Grid Overrides */
+  .app-container {
+    grid-template-rows: 34px 1fr 22px;
+  }
+  
+  .workspace-body {
+    grid-template-columns: 0px 1fr 0px; /* Collapse sidebars out of default grid */
+    position: relative;
+  }
+
+  /* Header Overrides */
+  .header-toggle-btn {
+    display: flex !important;
+  }
+  
+  .menu-bar {
+    display: none !important; /* Hide file menus on mobile; options are in Logo Dropdown */
+  }
+
+  .workspace-tabs {
+    max-width: 140px;
+    overflow-x: auto;
+    scrollbar-width: none; /* Hide scrollbar Firefox */
+  }
+  
+  .workspace-tabs::-webkit-scrollbar {
+    display: none; /* Hide scrollbar Chrome/Safari */
+  }
+  
+  .workspace-tabs .tab-btn {
+    padding: 3px 8px;
+    font-size: 10px;
+  }
+
+  .scene-select, .layer-select {
+    display: none !important; /* Hide to avoid crowding top bar */
+  }
+
+  /* Sliding Drawers for Toolbar Shelf */
+  .left-toolbar {
+    position: absolute;
+    top: 0;
+    left: 0;
+    height: 100%;
+    width: 36px;
+    background-color: var(--bg-panel-header);
+    transform: translateX(-100%);
+    transition: transform 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+    z-index: 150;
+    border-right: 1px solid var(--border-color);
+  }
+
+  .left-toolbar.mobile-open {
+    transform: translateX(0);
+    box-shadow: 4px 0 16px rgba(0,0,0,0.6);
+  }
+
+  /* Sliding Drawers for Properties/Outliner Panel */
+  .right-sidebar {
+    position: absolute;
+    top: 0;
+    right: 0;
+    height: 100%;
+    width: 250px;
+    background-color: var(--bg-panel);
+    transform: translateX(100%);
+    transition: transform 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+    z-index: 150;
+    border-left: 1px solid var(--border-color);
+    box-shadow: -4px 0 16px rgba(0,0,0,0.6);
+  }
+
+  .right-sidebar.mobile-open {
+    transform: translateX(0);
+  }
+
+  /* Viewport Controls Overrides */
+  .navigation-gizmo {
+    width: 52px;
+    height: 52px;
+  }
+  
+  .axis-sphere {
+    width: 38px;
+    height: 38px;
+  }
+  
+  .axis-node {
+    width: 10px;
+    height: 10px;
+    font-size: 7px;
+  }
+  
+  .pos-x { left: 28px; top: 14px; }
+  .neg-x { left: 0px; top: 14px; }
+  .pos-y { left: 14px; top: 28px; }
+  .neg-y { left: 14px; top: 0px; }
+  .pos-z { left: 14px; top: 14px; }
+  .neg-z { left: 14px; top: 14px; }
+
+  .viewport-controls .control-btn {
+    width: 22px;
+    height: 22px;
+  }
+  
+  .viewport-controls .control-btn i {
+    width: 11px;
+    height: 11px;
+  }
+
+  /* Timeline Shrinks */
+  .timeline-panel {
+    display: none !important; /* Hide Timeline on portrait screens to maximize viewport space */
+  }
+
+  /* F9 operator adjustments panel shrink */
+  .f9-panel {
+    width: 140px;
+    font-size: 9.5px;
+  }
+}
+
+@media (max-width: 480px) {
+  /* Floating shortcuts button labels hide, showing only icons */
+  .shortcut-btn span {
+    display: none !important;
+  }
+  
+  .mobile-shortcuts-bar {
+    border-radius: 16px;
+    padding: 3px 6px;
+    gap: 3px;
+    bottom: 6px;
+  }
+
+  .n-sidebar {
+    width: 130px;
+  }
+  
+  .n-row input {
+    width: 55px;
+  }
+}
+
+

@@ -31,6 +31,9 @@ jobs:
       - name: Install Node Dependencies
         run: npm install
 
+      - name: Build Web Assets (Vite)
+        run: npm run build
+
       - name: Initialize Capacitor Android Platform
         run: |
           npx cap add android

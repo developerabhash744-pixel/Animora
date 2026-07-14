@@ -4,11 +4,17 @@
   "description": "Animora - Web 3D Workspace (Blender Replica)",
   "main": "www/index.html",
   "scripts": {
-    "start": "npx serve www"
+    "dev": "vite",
+    "build": "vite build",
+    "start": "vite preview"
   },
   "dependencies": {
     "@capacitor/android": "^6.0.0",
     "@capacitor/cli": "^6.0.0",
-    "@capacitor/core": "^6.0.0"
+    "@capacitor/core": "^6.0.0",
+    "three": "^0.150.0"
+  },
+  "devDependencies": {
+    "vite": "^5.2.0"
   }
 }

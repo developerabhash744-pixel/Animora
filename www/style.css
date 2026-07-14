@@ -2158,8 +2158,15 @@ body.blender-theme {
   }
   
   .workspace-body {
-    grid-template-columns: 0px 1fr 0px; /* Collapse sidebars out of default grid */
+    display: block !important;
     position: relative;
+    width: 100%;
+    height: 100%;
+  }
+
+  .viewport-container {
+    width: 100% !important;
+    height: 100% !important;
   }
 
   /* Header Overrides */

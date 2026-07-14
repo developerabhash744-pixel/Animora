@@ -361,10 +361,22 @@ window.addEventListener('DOMContentLoaded', () => {
   // 13. Preferences modal
   const modalPrefs = document.getElementById('modal-prefs');
   
-  document.getElementById('menu-preferences').addEventListener('click', (e) => {
+  const openPrefs = (e) => {
     e.preventDefault();
     modalPrefs.classList.remove('hidden');
-  });
+    if (window.innerWidth <= 768) {
+      document.querySelectorAll('.prefs-sidebar .pref-tab').forEach(b => b.classList.remove('active'));
+      const vpTab = document.querySelector('.prefs-sidebar .pref-tab[data-pref-tab="viewport"]');
+      if (vpTab) vpTab.classList.add('active');
+      document.querySelectorAll('.prefs-content .pref-panel').forEach(p => p.classList.add('hidden'));
+      const vpPanel = document.getElementById('pref-viewport');
+      if (vpPanel) vpPanel.classList.remove('hidden');
+    }
+  };
+
+  document.getElementById('menu-preferences').addEventListener('click', openPrefs);
+  const mobPrefsBtn = document.getElementById('menu-mobile-prefs');
+  if (mobPrefsBtn) mobPrefsBtn.addEventListener('click', openPrefs);
 
   document.getElementById('close-prefs').addEventListener('click', () => {
     modalPrefs.classList.add('hidden');

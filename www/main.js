@@ -33,8 +33,15 @@ let lastOperationData = null;
 function init() {
   const container = document.getElementById('viewport-container');
   const canvas = document.getElementById('three-canvas');
-  const width = canvas.clientWidth;
-  const height = canvas.clientHeight;
+  const parent = canvas.parentElement;
+  
+  let width = parent.clientWidth;
+  let height = parent.clientHeight;
+  
+  if (!width || !height) {
+    width = window.innerWidth;
+    height = window.innerHeight - 56;
+  }
 
   // Scene
   scene = new THREE.Scene();
@@ -55,7 +62,7 @@ function init() {
 
   // Renderer
   renderer = new THREE.WebGLRenderer({ canvas: canvas, antialias: true });
-  renderer.setSize(width, height);
+  renderer.setSize(width, height, false);
   renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
   renderer.shadowMap.enabled = true;
   renderer.shadowMap.type = THREE.PCFSoftShadowMap;
@@ -86,6 +93,11 @@ function init() {
 
   // Resize Listener
   window.addEventListener('resize', onWindowResize);
+
+  // Trigger deferred resizes to settle layout measurements on WebViews
+  setTimeout(onWindowResize, 50);
+  setTimeout(onWindowResize, 200);
+  setTimeout(onWindowResize, 500);
 
   // Event bindings for keyboard shortcuts
   window.addEventListener('keydown', handleKeyboardShortcuts);
@@ -853,8 +865,17 @@ export function toggleCameraOrtho() {
 // Window resizing
 function onWindowResize() {
   const canvas = document.getElementById('three-canvas');
-  const width = canvas.clientWidth;
-  const height = canvas.clientHeight;
+  if (!canvas) return;
+  const parent = canvas.parentElement;
+  if (!parent) return;
+  
+  let width = parent.clientWidth;
+  let height = parent.clientHeight;
+
+  if (!width || !height) {
+    width = window.innerWidth;
+    height = window.innerHeight - 56;
+  }
 
   persCamera.aspect = width / height;
   persCamera.updateProjectionMatrix();
